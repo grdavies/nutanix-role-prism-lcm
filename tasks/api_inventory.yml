@@ -1,0 +1,37 @@
+---
+  - name: Run LCM Inventory
+    uri:
+      url: "{{ prism_api_lcm }}/operations/inventory"
+      method: POST
+      validate_certs: "{{ validate_certs }}"
+      body_format: json
+      headers:
+        Authorization: "{{ prism_api_auth }}"
+      status_code: 200
+      return_content: yes
+    register: lcm_inventory_result
+    ignore_errors: no
+
+  - name: Store LCM inventory task uuid
+    set_fact:
+      lcm_initial_inventory_task_uuid: "{{ lcm_inventory_result.json.data.task_uuid }}"
+
+  - name: Wait for LCM inventory task to complete
+    block:
+      - name: Checking LCM inventory status
+        uri:
+          url: "{{ prism_api_v2 }}/tasks/{{ lcm_initial_inventory_task_uuid }}"
+          method: GET
+          validate_certs: "{{ validate_certs }}"
+          status_code: 200
+          headers:
+            Authorization: "{{ prism_api_auth }}"
+        register: lcm_task_status
+        until: lcm_task_status.json.progress_status == 'Succeeded' or lcm_task_status.json.progress_status == 'Failed'
+        retries: 20
+        delay: 60
+
+  - name: LCM inventory task failed
+    ansible.builtin.fail:
+      msg: "LCM inventory task failed. {{ lcm_task_status.json.message }}"
+    when: lcm_task_status.json.progress_status == 'Failed'

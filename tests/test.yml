@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  gather_facts: false
+  roles:
+    - role: grdavies.nutanix_role_prism_init_api
+    - role: ../..
+  vars:
+    prism_ip: 10.38.185.37
+    prism_username: admin
+    prism_password: nx2Tech165!
+    lcm_run_inventory: False
+    lcm_run_firmware_updates: True
+    lcm_software_to_update:
+      - NCC

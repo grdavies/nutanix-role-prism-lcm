@@ -1,0 +1,36 @@
+---
+  - name: LCM update
+    uri:
+      url: "{{ prism_api_lcm }}/operations/update"
+      method: POST
+      validate_certs: "{{ validate_certs }}"
+      body_format: json
+      body:
+        entity_update_spec_list: "{{ lcm_update_recommendations.json.data.entity_update_spec_list }}"
+      headers:
+        Authorization: "{{ prism_api_auth }}"
+      status_code: 200
+      return_content: yes
+    register: lcm_update
+    ignore_errors: no
+
+  - name: Wait for LCM update task to complete
+    block:
+      - name: Checking LCM update task status
+        uri:
+          url: "{{ prism_api_v2 }}/tasks/{{ lcm_update.json.data.task_uuid }}"
+          method: GET
+          validate_certs: "{{ validate_certs }}"
+          status_code: 200
+          headers:
+            Authorization: "{{ prism_api_auth }}"
+        register: lcm_update_task
+        until: lcm_update_task.json.progress_status == 'Succeeded' or lcm_update_task.json.progress_status == 'Failed'
+        retries: "{{ lcm_retries * lcm_update_recommendations.json.data.entity_update_spec_list | default([]) | length }}"
+        delay: "{{ lcm_delay }}"
+
+  - name: Checking LCM update task failed
+    ansible.builtin.fail:
+      msg: "LCM software update task failed. {{ lcm_update_task.json.message }}"
+    when:
+      - lcm_update_task.json.progress_status == 'Failed'

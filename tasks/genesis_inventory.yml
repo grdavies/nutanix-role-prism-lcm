@@ -1,0 +1,45 @@
+---
+  - name: Run LCM Initial Inventory
+    uri:
+      url: "{{ prism_api_v1 }}/genesis"
+      body:
+        value: "{\".oid\":\"LifeCycleManager\",\".method\":\"lcm_framework_rpc\",\".kwargs\":{\"method_class\":\"LcmFramework\",\"method\":\"perform_inventory\",\"args\":[\"http: //download.nutanix.com/lcm/2.0\"]}}"
+      method: POST
+      validate_certs: "{{ validate_certs }}"
+      body_format: json
+      status_code: 200
+      headers:
+        Authorization: "{{ prism_api_auth }}"
+    register: lcm_initial_inventory_result
+    ignore_errors: no
+
+  - set_fact:
+      lcm_initial_inventory_result_value: "{{ lcm_initial_inventory_result.json | community.general.json_query(query) | to_json | from_json }}"
+    vars:
+      query: 'value'
+
+  - name: Store LCM inventory task uuid
+    set_fact:
+      lcm_initial_inventory_task_uuid: "{{ lcm_initial_inventory_result_value | community.general.json_query(query) }}"
+    vars:
+      query: '".return"'
+
+  - name: Wait for LCM inventory task to complete
+    block:
+      - name: Checking LCM inventory status
+        uri:
+          url: "{{ prism_api_v2 }}/tasks/{{ lcm_initial_inventory_task_uuid }}"
+          method: GET
+          validate_certs: "{{ validate_certs }}"
+          status_code: 200
+          headers:
+            Authorization: "{{ prism_api_auth }}"
+        register: lcm_task_status
+        until: lcm_task_status.json.progress_status == 'Succeeded' or lcm_task_status.json.progress_status == 'Failed'
+        retries: 20
+        delay: 60
+
+  - name: LCM inventory task failed
+    ansible.builtin.fail:
+      msg: "LCM inventory task failed. {{ lcm_task_status.json.message }}"
+    when: lcm_task_status.json.progress_status == 'Failed'
