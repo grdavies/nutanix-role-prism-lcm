@@ -32,8 +32,7 @@ This example playbook will invoke LCM on a specific cluster running only a softw
 
 ```   - hosts: localhost
      roles:
-       - role: grdavies.nutanix_role_prism_init_api
-       - role: grdavies.nutanix_role_prism_init_api
+       - role: grdavies.nutanix-role-prism-lcm
      vars:
        prism_ip: 10.38.185.37
        prism_username: admin
