@@ -7,16 +7,16 @@ This Ansible role invokes LCM to perform an inventory operation followed by soft
 Role Variables
 --------------
 
-| Variable                 | Required | Default | Choices                                                                         | Comments                                                                                                                                           |
-|--------------------------|----------|---------|---------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| validate_certs           | no       | no      |                                                                                 | Whether to check if Prism UI certificates are valid.                                                                                               |
-| lcm_run_inventory        | no       | True    | True or False                                                                   | Whether to run an inventory prior to installing updates.                                                                                           |
-| lcm_run_software_updates | no       | True    | True or False                                                                   | Whether to install software updates.                                                                                                               |
-| lcm_software_to_update   | no       | []      | ["NCC", "Cluster Maintenance Utilities", "Foundation", "AHV hypervisor", "AOS"] | If not defined then all available software updates will be installed. If one or more software choices are provided then only they will be updated. |
-| lcm_run_firmware_updates | no       | True    | True or False                                                                   | Whether to install firmware updates.                                                                                                               |
-| lcm_run_precheck         | no       | True    | True or False                                                                   | Whether to run a LCM precheck prior to installing updates.                                                                                         |
-| lcm_retries              | no       | 5       |                                                                                 | Number of progress checks                                                                                                                          |
-| lcm_delay                | no       | 300     |                                                                                 | Progress check interval                                                                                                                            |
+| Variable                         | Required | Default | Choices                                                                                | Comments                                                                                                                                                                                                     |
+|----------------------------------|----------|---------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| validate_certs                   | no       | no      |                                                                                        | Whether to check if Prism UI certificates are valid.                                                                                                                                                         |
+| nutanix_lcm_run_inventory        | no       | True    | True or False                                                                          | Whether to run an inventory prior to installing updates.                                                                                                                                                     |
+| nutanix_lcm_run_software_updates | no       | True    | True or False                                                                          | Whether to install software updates.                                                                                                                                                                         |
+| nutanix_lcm_software_to_update   | no       | []      | ["NCC", "Cluster Maintenance Utilities", "Foundation", "AHV hypervisor", "AOS", "FSM"] | If not defined then all available software updates will be installed. If one or more software choices are provided then only they will be updated, if not choices are provided all software will be updated. |
+| nutanix_lcm_run_firmware_updates | no       | True    | True or False                                                                          | Whether to install firmware updates.                                                                                                                                                                         |
+| nutanix_lcm_run_precheck         | no       | True    | True or False                                                                          | Whether to run a LCM precheck prior to installing updates.                                                                                                                                                   |
+| nutanix_lcm_retries              | no       | 5       |                                                                                        | Number of progress checks                                                                                                                                                                                    |
+| nutanix_lcm_delay                | no       | 300     |                                                                                        | Progress check interval                                                                                                                                                                                      |
 
 
 Dependencies
@@ -38,8 +38,8 @@ This example playbook will invoke LCM on a specific cluster running only a softw
    nutanix_host: 10.38.185.37
    nutanix_username: admin
    nutanix_password: nx2Tech165!
-   lcm_run_firmware_updates: False
-   lcm_software_to_update:
+   nutanix_lcm_run_firmware_updates: False
+   nutanix_lcm_software_to_update:
      - NCC
 ```
 License

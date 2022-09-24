@@ -6,32 +6,32 @@
   - name: Inputs for initial inventory task (to initiate LCM upgrade)
     include_tasks: genesis_inventory.yml
     when:
-      - lcm_api_test is failed
-      - lcm_run_inventory
+      - nutanix_lcm_api_test is failed
+      - nutanix_lcm_run_inventory
 
   - name: Re-test LCM API
     include_tasks: test_api.yml
-    when: lcm_api_test is failed
+    when: nutanix_lcm_api_test is failed
 
   - name: LCM API not available
     ansible.builtin.fail:
       msg: "LCM API did not become available following the LCM inventory task. Check your LCM repository settings and try again.."
-    when: lcm_api_test is failed
+    when: nutanix_lcm_api_test is failed
 
   - name: Inputs for LCM inventory task
     include_tasks: api_inventory.yml
     when:
-      - lcm_api_test is not failed
-      - lcm_run_inventory
+      - nutanix_lcm_api_test is not failed
+      - nutanix_lcm_run_inventory
 
   - name: Inputs for LCM software update task
     include_tasks: update_software.yml
     when:
-      - lcm_api_test is not failed
-      - lcm_run_software_updates
+      - nutanix_lcm_api_test is not failed
+      - nutanix_lcm_run_software_updates
 
-  - name: Inputs for LCM firmware update task
-    include_tasks: update_firmware.yml
-    when:
-      - lcm_api_test is not failed
-      - lcm_run_firmware_updates
+  # - name: Inputs for LCM firmware update task
+  #   include_tasks: update_firmware.yml
+  #   when:
+  #     - nutanix_lcm_api_test is not failed
+  #     - nutanix_lcm_run_firmware_updates

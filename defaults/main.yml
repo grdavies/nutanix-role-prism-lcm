@@ -1,10 +1,10 @@
 ---
 # defaults file for nutanix-ansible-galaxy-role-lcm
   validate_certs: no
-  lcm_run_inventory: True
-  lcm_run_software_updates: True
-  lcm_software_to_update: []
-  lcm_run_firmware_updates: True
-  lcm_run_precheck: True
-  lcm_retries: 5
-  lcm_delay: 300
+  nutanix_lcm_run_inventory: True
+  nutanix_lcm_run_software_updates: True
+  nutanix_lcm_software_to_update: []
+  nutanix_lcm_run_firmware_updates: True
+  nutanix_lcm_run_precheck: True
+  nutanix_lcm_retries: 5
+  nutanix_lcm_delay: 300

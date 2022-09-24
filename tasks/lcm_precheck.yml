@@ -1,36 +1,42 @@
 ---
   - name: LCM update pre-check
     uri:
-      url: "{{ prism_api_lcm }}/operations/precheck"
+      url: "{{ nutanix_api_lcm }}/operations/$actions/performPrecheck"
       method: POST
       validate_certs: "{{ validate_certs }}"
       body_format: json
       body:
-        entity_update_spec_list: "{{ lcm_update_recommendations.json.data.entity_update_spec_list }}"
+        entityUpdateSpecs: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
       headers:
-        Authorization: "{{ prism_api_auth }}"
+        Authorization: "{{ nutanix_api_auth }}"
       status_code: 200
       return_content: yes
-    register: lcm_update_precheck
+    register: nutanix_lcm_update_precheck
     ignore_errors: no
+
+  - name: Debug nutanix_lcm_update_precheck.json
+    debug:
+      var: nutanix_lcm_update_precheck.json
+    when:
+      - nutanix_debug
 
   - name: Wait for LCM update pre-check task to complete
     block:
       - name: Checking LCM software update pre-check task status
         uri:
-          url: "{{ prism_api_v2 }}/tasks/{{ lcm_update_precheck.json.data.task_uuid }}"
+          url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update_precheck.json.data.extId }}"
           method: GET
           validate_certs: "{{ validate_certs }}"
           status_code: 200
           headers:
-            Authorization: "{{ prism_api_auth }}"
-        register: lcm_update_precheck_task
-        until: lcm_update_precheck_task.json.progress_status == 'Succeeded' or lcm_update_precheck_task.json.progress_status == 'Failed'
+            Authorization: "{{ nutanix_api_auth }}"
+        register: nutanix_lcm_update_precheck_task
+        until: nutanix_lcm_update_precheck_task.json.data.status == 'kSucceeded' or nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'
         retries: 20
         delay: 30
 
   - name: Checking LCM update pre-check task failed
     ansible.builtin.fail:
-      msg: "LCM software update task failed. {{ lcm_update_precheck_task.json.message }}"
+      msg: "LCM software update pre-check task failed. {{ nutanix_lcm_update_precheck_task.json.data.errorCode }}: {{ nutanix_lcm_update_precheck_task.json.data.errorDetail }}"
     when:
-      - lcm_update_precheck_task.json.progress_status == 'Failed'
+      - nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'

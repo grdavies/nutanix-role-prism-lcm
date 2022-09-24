@@ -1,5 +1,5 @@
-{% if lcm_sw_update_list | default([]) | length > 0%}
-target_entity_list: {{ lcm_sw_update_list }}
+{% if nutanix_lcm_sw_update_list | default([]) | length > 0%}
+targetEntities: {{ nutanix_lcm_sw_update_list }}
 {% else %}
-entity_type_list: ["software"]
+entityTypes: ["software"]
 {% endif %}

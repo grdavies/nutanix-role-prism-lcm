@@ -1,14 +1,21 @@
 ---
   - name: Test LCM API
     uri:
-      url: "{{ prism_api_lcm }}/resources/config"
+      url: "{{ nutanix_api_lcm }}/resources/config"
       method: GET
       validate_certs: "{{ validate_certs }}"
       body_format: json
       headers:
-        Authorization: "{{ prism_api_auth }}"
+        Authorization: "{{ nutanix_api_auth }}"
       status_code: 200
       return_content: yes
-    register: lcm_api_test
+    register: nutanix_lcm_api_test
     ignore_errors: yes
     no_log: True
+
+  - name: Debug nutanix_lcm_api_test
+    debug:
+      var: nutanix_lcm_api_test.json
+    when:
+      - nutanix_debug
+      - nutanix_lcm_api_test is defined

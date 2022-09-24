@@ -1,54 +1,85 @@
 ---
   - name: Set LCM update list to specific software
     set_fact:
-      lcm_sw_update_list: "{{ lcm_sw_update_list | default([]) + [item] }}"
+      nutanix_lcm_sw_update_list: "{{ nutanix_lcm_sw_update_list | default([]) + [item] }}"
     loop: "{{ software_target_entity_list }}"
     when:
-      - lcm_software_to_update is defined
-      - item.entity_model in lcm_software_to_update | default([])
+      - nutanix_lcm_software_to_update is defined
+      - item.entityModel in nutanix_lcm_software_to_update | default([])
+
+  - name: Debug nutanix_lcm_sw_update_list
+    debug:
+      var: nutanix_lcm_sw_update_list
+    when:
+      - nutanix_debug
+
+  - name: Debug update recommendations POST body
+    debug:
+      msg: "{{ lookup('template','lcm-req.j2') | from_yaml | to_json }}"
+    when:
+      - nutanix_debug
 
   - name: Get LCM software update recommendations
     uri:
-      url: "{{ prism_api_lcm }}/resources/recommendations"
+      url: "{{ nutanix_api_lcm }}/resources/recommendations"
       method: POST
       validate_certs: "{{ validate_certs }}"
       body_format: json
       body: "{{ lookup('template','lcm-req.j2') | from_yaml | to_json }}"
       headers:
-        Authorization: "{{ prism_api_auth }}"
+        Authorization: "{{ nutanix_api_auth }}"
       status_code: 200
       return_content: yes
-    register: lcm_update_recommendations
+    register: nutanix_lcm_update_recommendations
     ignore_errors: no
+
+  - name: Debug nutanix_lcm_update_recommendations.json
+    debug:
+      var: nutanix_lcm_update_recommendations.json
+    when:
+      - nutanix_debug
+
+  - name: Debug nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs
+    debug:
+      var: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
+    when:
+      - nutanix_debug
 
   - name: Generate software update plan
     uri:
-      url: "{{ prism_api_lcm }}/resources/plan"
+      url: "{{ nutanix_api_lcm }}/resources/plan"
       method: POST
       validate_certs: "{{ validate_certs }}"
       body_format: json
-      body: "{{ lcm_update_recommendations.json.data.entity_update_spec_list }}"
+      body:
+        entityUpdateSpecs: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
       headers:
-        Authorization: "{{ prism_api_auth }}"
+        Authorization: "{{ nutanix_api_auth }}"
       status_code: 200
       return_content: yes
-    register: lcm_update_plan
+    register: nutanix_lcm_update_plan
     ignore_errors: no
     when:
-      - lcm_update_recommendations.json.data.entity_update_spec_list | default([]) | length > 0
+      - nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length > 0
+
+  - name: Debug nutanix_lcm_update_plan
+    debug:
+      var: nutanix_lcm_update_plan.json
+    when:
+      - nutanix_debug
 
   - name: Anticipated LCM actions during software upgrade
     debug:
-      msg: "{{ lcm_update_plan.json.data.hostplan_list | json_query('[].action') | unique | list }}"
+      msg: "{{ nutanix_lcm_update_plan.json.data.hostUpgradePlans | json_query('[].action') | unique | list }}"
     when:
-      - lcm_update_recommendations.json.data.entity_update_spec_list | default([]) | length > 0
+      - nutanix_lcm_update_plan.json.data.hostUpgradePlans | default([]) | length > 0
 
   - name: Run LCM software update pre-checks
     import_tasks: lcm_precheck.yml
     when:
-      - lcm_run_precheck
-      - lcm_update_recommendations.json.data.entity_update_spec_list | default([]) | length > 0
+      - nutanix_lcm_run_precheck
+      - nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length > 0
 
   - name: Run LCM software update
     import_tasks: lcm_update.yml
-    when: lcm_update_recommendations.json.data.entity_update_spec_list | default([]) | length > 0
+    when: nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length > 0
