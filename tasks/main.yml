@@ -30,8 +30,8 @@
       - nutanix_lcm_api_test is not failed
       - nutanix_lcm_run_software_updates
 
-  # - name: Inputs for LCM firmware update task
-  #   include_tasks: update_firmware.yml
-  #   when:
-  #     - nutanix_lcm_api_test is not failed
-  #     - nutanix_lcm_run_firmware_updates
+  - name: Inputs for LCM firmware update task
+    include_tasks: update_firmware.yml
+    when:
+      - nutanix_lcm_api_test is not failed
+      - nutanix_lcm_run_firmware_updates
