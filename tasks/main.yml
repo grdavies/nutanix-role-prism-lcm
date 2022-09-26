@@ -22,6 +22,7 @@
     include_tasks: api_inventory.yml
     when:
       - nutanix_lcm_api_test is not failed
+      - nutanix_lcm_initial_inventory_task_status is not defined
       - nutanix_lcm_run_inventory
 
   - name: Inputs for LCM software update task

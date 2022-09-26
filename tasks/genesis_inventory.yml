@@ -52,18 +52,18 @@
           status_code: 200
           headers:
             Authorization: "{{ nutanix_api_auth }}"
-        register: nutanix_lcm_task_status
-        until: nutanix_lcm_task_status.json.progress_status == 'Succeeded' or nutanix_lcm_task_status.json.progress_status == 'Failed'
+        register: nutanix_lcm_initial_inventory_task_status
+        until: nutanix_lcm_initial_inventory_task_status.json.progress_status == 'Succeeded' or nutanix_lcm_initial_inventory_task_status.json.progress_status == 'Failed'
         retries: 50
         delay: 60
 
-      - name: Debug nutanix_lcm_task_status
+      - name: Debug nutanix_lcm_initial_inventory_task_status.json
         debug:
-          var: nutanix_lcm_task_status.json
+          var: nutanix_lcm_initial_inventory_task_status.json
         when:
           - nutanix_debug
 
   - name: LCM inventory task failed
     ansible.builtin.fail:
-      msg: "LCM inventory task failed. {{ nutanix_lcm_task_status.json.message }}"
-    when: nutanix_lcm_task_status.json.progress_status == 'Failed'
+      msg: "LCM inventory task failed. {{ nutanix_lcm_initial_inventory_task_status.json.message }}"
+    when: nutanix_lcm_initial_inventory_task_status.json.progress_status == 'Failed'
