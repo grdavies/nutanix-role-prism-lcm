@@ -39,4 +39,4 @@
     ansible.builtin.fail:
       msg: "LCM software update task failed. {{ nutanix_lcm_update_precheck_task.json.data.errorCode }}: {{ nutanix_lcm_update_precheck_task.json.data.errorDetail }}"
     when:
-      - nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'
+      - nutanix_lcm_update_task.json.data.status == 'kFailed'
