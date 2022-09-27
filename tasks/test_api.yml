@@ -4,14 +4,12 @@
       url: "{{ nutanix_api_lcm }}/resources/config"
       method: GET
       validate_certs: "{{ validate_certs }}"
-      body_format: json
       headers:
         Authorization: "{{ nutanix_api_auth }}"
-      status_code: 200
-      return_content: yes
     register: nutanix_lcm_api_test
-    ignore_errors: yes
-    no_log: True
+    until: nutanix_lcm_api_test.status == 200
+    retries: 12
+    delay: 5
 
   - name: Debug nutanix_lcm_api_test
     debug:
