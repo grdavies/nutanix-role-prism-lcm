@@ -1,42 +1,68 @@
 ---
-  - name: LCM update
-    uri:
-      url: "{{ nutanix_api_lcm }}/operations/$actions/performUpdate"
-      method: POST
-      validate_certs: "{{ validate_certs }}"
-      body_format: json
-      body:
-        entityUpdateSpecs: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
-      headers:
-        Authorization: "{{ nutanix_api_auth }}"
-      status_code: 200
-      return_content: yes
-    register: nutanix_lcm_update
-    ignore_errors: no
+- name: LCM update
+  uri:
+    url: "{{ nutanix_api_lcm }}/operations/$actions/performUpdate"
+    method: POST
+    validate_certs: "{{ validate_certs }}"
+    body_format: json
+    body:
+      entityUpdateSpecs: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
+    headers:
+      Authorization: "{{ nutanix_api_auth }}"
+    status_code: 200
+    return_content: yes
+  register: nutanix_lcm_update
+  ignore_errors: no
 
-  - name: Debug nutanix_lcm_update.json
-    debug:
-      var: nutanix_lcm_update.json
-    when:
-      - nutanix_debug
+- name: Debug nutanix_lcm_update.json
+  debug:
+    var: nutanix_lcm_update.json
+  when:
+    - nutanix_debug
 
-  - name: Wait for LCM update task to complete
-    block:
-      - name: Checking LCM update task status
-        uri:
-          url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
-          method: GET
-          validate_certs: "{{ validate_certs }}"
-          status_code: 200
-          headers:
-            Authorization: "{{ nutanix_api_auth }}"
-        register: nutanix_lcm_update_task
-        until: nutanix_lcm_update_task.json.data.status == 'kSucceeded' or nutanix_lcm_update_task.json.data.status == 'kFailed'
-        retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
-        delay: "{{ nutanix_lcm_delay }}"
+- name: Debug task status url
+  debug:
+    msg: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+  when:
+    - nutanix_debug
 
-  - name: Checking LCM update task failed
-    ansible.builtin.fail:
-      msg: "LCM software update task failed. {{ nutanix_lcm_update_precheck_task.json.data.errorCode }}: {{ nutanix_lcm_update_precheck_task.json.data.errorDetail }}"
-    when:
-      - nutanix_lcm_update_task.json.data.status == 'kFailed'
+- name: Checking LCM update task status
+  uri:
+    url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+    method: GET
+    validate_certs: "{{ validate_certs }}"
+    status_code: 200
+    headers:
+      Authorization: "{{ nutanix_api_auth }}"
+  register: nutanix_lcm_update_task_debug
+
+- name: Debug nutanix_lcm_update_task_debug.json
+  debug:
+    var: nutanix_lcm_update_task_debug.json
+  when:
+    - nutanix_debug
+
+- name: Wait for LCM update task to complete
+  block:
+    - name: Checking LCM update task status
+      uri:
+        url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+        method: GET
+        validate_certs: "{{ validate_certs }}"
+        status_code: 200
+        headers:
+          Authorization: "{{ nutanix_api_auth }}"
+      register: nutanix_lcm_update_task
+      until: nutanix_lcm_update_task.json.data.status == 'kSucceeded' or nutanix_lcm_update_task.json.data.status == 'kFailed'
+      retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
+      delay: "{{ nutanix_lcm_delay }}"
+
+- name: Checking LCM update task failed
+  ansible.builtin.fail:
+    msg: "LCM software update task failed. {{ nutanix_lcm_update_task.json.data.errorCode | default('') }}: {{ nutanix_lcm_update_task.json.data.errorDetail  | default('')}}"
+  when:
+    - nutanix_lcm_update_task.json.data.status == 'kFailed'
+
+- name: Pause for 30 seconds allow new LCM upgrade to become available
+  ansible.builtin.pause:
+    seconds: 30

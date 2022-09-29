@@ -6,9 +6,9 @@
   vars:
     nutanix_host: 10.38.185.37
     nutanix_username: admin
-    nutanix_password: nx2Tech165!
+    nutanix_password: nx2Tech814!
     # nutanix_debug: True
-    nutanix_lcm_run_inventory: True
+    nutanix_lcm_run_inventory: False
     nutanix_lcm_run_firmware_updates: True
     nutanix_lcm_software_to_update:
       - NCC

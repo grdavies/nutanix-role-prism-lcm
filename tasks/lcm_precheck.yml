@@ -1,42 +1,58 @@
 ---
-  - name: LCM update pre-check
-    uri:
-      url: "{{ nutanix_api_lcm }}/operations/$actions/performPrecheck"
-      method: POST
-      validate_certs: "{{ validate_certs }}"
-      body_format: json
-      body:
-        entityUpdateSpecs: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
-      headers:
-        Authorization: "{{ nutanix_api_auth }}"
-      status_code: 200
-      return_content: yes
-    register: nutanix_lcm_update_precheck
-    ignore_errors: no
+- name: LCM update pre-check
+  uri:
+    url: "{{ nutanix_api_lcm }}/operations/$actions/performPrecheck"
+    method: POST
+    validate_certs: "{{ validate_certs }}"
+    body_format: json
+    body:
+      entityUpdateSpecs: "{{ nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs }}"
+    headers:
+      Authorization: "{{ nutanix_api_auth }}"
+    status_code: 200
+    return_content: yes
+  register: nutanix_lcm_update_precheck
+  ignore_errors: no
 
-  - name: Debug nutanix_lcm_update_precheck.json
-    debug:
-      var: nutanix_lcm_update_precheck.json
-    when:
-      - nutanix_debug
+- name: Debug nutanix_lcm_update_precheck.json
+  debug:
+    var: nutanix_lcm_update_precheck.json
+  when:
+    - nutanix_debug
 
-  - name: Wait for LCM update pre-check task to complete
-    block:
-      - name: Checking LCM software update pre-check task status
-        uri:
-          url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update_precheck.json.data.extId }}"
-          method: GET
-          validate_certs: "{{ validate_certs }}"
-          status_code: 200
-          headers:
-            Authorization: "{{ nutanix_api_auth }}"
-        register: nutanix_lcm_update_precheck_task
-        until: nutanix_lcm_update_precheck_task.json.data.status == 'kSucceeded' or nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'
-        retries: 20
-        delay: 30
+- name: Checking LCM pre-check task status
+  uri:
+    url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update_precheck.json.data.extId }}"
+    method: GET
+    validate_certs: "{{ validate_certs }}"
+    status_code: 200
+    headers:
+      Authorization: "{{ nutanix_api_auth }}"
+  register: nutanix_lcm_update_precheck_task_debug
 
-  - name: Checking LCM update pre-check task failed
-    ansible.builtin.fail:
-      msg: "LCM software update pre-check task failed. {{ nutanix_lcm_update_precheck_task.json.data.errorCode }}: {{ nutanix_lcm_update_precheck_task.json.data.errorDetail }}"
-    when:
-      - nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'
+- name: Debug nutanix_lcm_update_precheck_task_debug.json
+  debug:
+    var: nutanix_lcm_update_precheck_task_debug.json
+  when:
+    - nutanix_debug
+
+- name: Wait for LCM update pre-check task to complete
+  block:
+    - name: Checking LCM software update pre-check task status
+      uri:
+        url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update_precheck.json.data.extId }}"
+        method: GET
+        validate_certs: "{{ validate_certs }}"
+        status_code: 200
+        headers:
+          Authorization: "{{ nutanix_api_auth }}"
+      register: nutanix_lcm_update_precheck_task
+      until: nutanix_lcm_update_precheck_task.json.data.status == 'kSucceeded' or nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'
+      retries: 20
+      delay: 30
+
+- name: Checking LCM update pre-check task failed
+  ansible.builtin.fail:
+    msg: "LCM software update pre-check task failed. {{ nutanix_lcm_update_precheck_task.json.data.errorCode  | default('') }}: {{ nutanix_lcm_update_precheck_task.json.data.errorDetail  | default('') }}"
+  when:
+    - nutanix_lcm_update_precheck_task.json.data.status == 'kFailed'
