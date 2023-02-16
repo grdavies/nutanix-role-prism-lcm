@@ -43,26 +43,16 @@
     - nutanix_debug
 
 - name: Wait for LCM update task to complete
-  block:
-    - name: Checking LCM update task status
-      uri:
-        url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
-        method: GET
-        validate_certs: "{{ validate_certs }}"
-        status_code: 200
-        headers:
-          Authorization: "{{ nutanix_api_auth }}"
-      register: nutanix_lcm_update_task
-      until: nutanix_lcm_update_task.json.data.status == 'kSucceeded' or nutanix_lcm_update_task.json.data.status == 'kFailed'
-      retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
-      delay: "{{ nutanix_lcm_delay }}"
+  ansible.builtin.import_role:
+    name: grdavies.nutanix_role_prism_monitor_task
+  vars:
+    nutanix_host: "{{ nutanix_host }}"
+    nutanix_username: "{{ nutanix_username }}"
+    nutanix_password: "{{ nutanix_password }}"
+    nutanix_debug: "{{ nutanix_debug }}"
+    nutanix_task_uuid: "{{ nutanix_lcm_update.json.data.extId }}"
+    nutanix_task_retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
+    nutanix_task_retry_delay: "{{ nutanix_lcm_delay }}"
 
-- name: Checking LCM update task failed
-  ansible.builtin.fail:
-    msg: "LCM software update task failed. {{ nutanix_lcm_update_task.json.data.errorCode | default('') }}: {{ nutanix_lcm_update_task.json.data.errorDetail  | default('')}}"
-  when:
-    - nutanix_lcm_update_task.json.data.status == 'kFailed'
-
-- name: Pause for 30 seconds allow new LCM upgrade to become available
-  ansible.builtin.pause:
-    seconds: 30
+- set_fact:
+  nutanix_lcm_update_task: "{{ monitored_task }}"
