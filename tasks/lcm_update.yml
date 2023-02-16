@@ -1,7 +1,7 @@
 ---
 - name: LCM update
   uri:
-    url: "{{ nutanix_api_lcm }}/operations/$actions/performUpdate"
+    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/operations/$actions/performUpdate"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json
@@ -22,13 +22,13 @@
 
 - name: Debug task status url
   debug:
-    msg: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+    msg: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
   when:
     - nutanix_debug
 
 - name: Checking LCM update task status
   uri:
-    url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
     method: GET
     validate_certs: "{{ validate_certs }}"
     status_code: 200
@@ -46,7 +46,7 @@
   block:
     - name: Checking LCM update task status
       uri:
-        url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+        url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
         method: GET
         validate_certs: "{{ validate_certs }}"
         status_code: 200

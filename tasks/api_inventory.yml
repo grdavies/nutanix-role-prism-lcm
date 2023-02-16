@@ -1,49 +1,49 @@
 ---
-  - name: Run LCM Inventory
-    uri:
-      url: "{{ nutanix_api_lcm }}/operations/$actions/performInventory"
-      method: POST
-      validate_certs: "{{ validate_certs }}"
-      body_format: json
-      headers:
-        Authorization: "{{ nutanix_api_auth }}"
-      status_code: 200
-      return_content: yes
-    register: nutanix_lcm_inventory_result
-    ignore_errors: no
+- name: Run LCM Inventory
+  uri:
+    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/operations/$actions/performInventory"
+    method: POST
+    validate_certs: "{{ validate_certs }}"
+    body_format: json
+    headers:
+      Authorization: "{{ nutanix_api_auth }}"
+    status_code: 200
+    return_content: yes
+  register: nutanix_lcm_inventory_result
+  ignore_errors: no
 
-  - name: Debug nutanix_lcm_inventory_result.json
-    debug:
-      var: nutanix_lcm_inventory_result.json
-    when:
-      - nutanix_debug
+- name: Debug nutanix_lcm_inventory_result.json
+  debug:
+    var: nutanix_lcm_inventory_result.json
+  when:
+    - nutanix_debug
 
-  - name: Store LCM inventory task uuid
-    set_fact:
-      nutanix_lcm_inventory_task_uuid: "{{ nutanix_lcm_inventory_result.json.data.extId }}"
+- name: Store LCM inventory task uuid
+  set_fact:
+    nutanix_lcm_inventory_task_uuid: "{{ nutanix_lcm_inventory_result.json.data.extId }}"
 
-  - name: Debug nutanix_lcm_initial_inventory_task_uuid
-    debug:
-      var: nutanix_lcm_inventory_task_uuid
-    when:
-      - nutanix_debug
+- name: Debug nutanix_lcm_initial_inventory_task_uuid
+  debug:
+    var: nutanix_lcm_inventory_task_uuid
+  when:
+    - nutanix_debug
 
-  - name: Wait for LCM inventory task to complete
-    block:
-      - name: Checking LCM inventory status
-        uri:
-          url: "{{ nutanix_api_lcm }}/resources/tasks/{{ nutanix_lcm_inventory_task_uuid }}"
-          method: GET
-          validate_certs: "{{ validate_certs }}"
-          status_code: 200
-          headers:
-            Authorization: "{{ nutanix_api_auth }}"
-        register: nutanix_lcm_task_status
-        until: nutanix_lcm_task_status.json.data.status == 'kSucceeded' or nutanix_lcm_task_status.json.data.status == 'kFailed'
-        retries: 50
-        delay: 60
+- name: Wait for LCM inventory task to complete
+  block:
+    - name: Checking LCM inventory status
+      uri:
+        url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_inventory_task_uuid }}"
+        method: GET
+        validate_certs: "{{ validate_certs }}"
+        status_code: 200
+        headers:
+          Authorization: "{{ nutanix_api_auth }}"
+      register: nutanix_lcm_task_status
+      until: nutanix_lcm_task_status.json.data.status == 'kSucceeded' or nutanix_lcm_task_status.json.data.status == 'kFailed'
+      retries: 50
+      delay: 60
 
-  - name: LCM inventory task failed
-    ansible.builtin.fail:
-      msg: "LCM inventory task failed. {{ nutanix_lcm_task_status.json.data.errorCode }}: {{ nutanix_lcm_task_status.json.data.errorDetail }}"
-    when: nutanix_lcm_task_status.json.data.status == 'kFailed'
+- name: LCM inventory task failed
+  ansible.builtin.fail:
+    msg: "LCM inventory task failed. {{ nutanix_lcm_task_status.json.data.errorCode }}: {{ nutanix_lcm_task_status.json.data.errorDetail }}"
+  when: nutanix_lcm_task_status.json.data.status == 'kFailed'

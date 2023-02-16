@@ -1,7 +1,7 @@
 ---
 - name: Run LCM Initial Inventory
   uri:
-    url: "{{ nutanix_api_v1 }}/genesis"
+    url: "https://{{nutanix_host}}:{{nutanix_port}}/PrismGateway/services/rest/v1/genesis"
     body:
       value: '{".oid":"LifeCycleManager",".method":"lcm_framework_rpc",".kwargs":{"method_class":"LcmFramework","method":"perform_inventory","args":["http: //download.nutanix.com/lcm/2.0"]}}'
     method: POST
@@ -50,7 +50,7 @@
 
 - name: Debug nutanix_lcm_initial_inventory_task_uuid
   uri:
-    url: "{{ nutanix_api_v2 }}/tasks/{{ nutanix_lcm_initial_inventory_task_uuid }}"
+    url: "https://{{nutanix_host}}:{{nutanix_port}}/PrismGateway/services/rest/v2.0/tasks/{{ nutanix_lcm_initial_inventory_task_uuid }}"
     method: GET
     validate_certs: "{{ validate_certs }}"
     status_code: 200
@@ -68,7 +68,7 @@
   block:
     - name: Checking LCM inventory status
       uri:
-        url: "{{ nutanix_api_v2 }}/tasks/{{ nutanix_lcm_initial_inventory_task_uuid }}"
+        url: "https://{{nutanix_host}}:{{nutanix_port}}/PrismGateway/services/rest/v2.0/tasks/{{ nutanix_lcm_initial_inventory_task_uuid }}"
         method: GET
         validate_certs: "{{ validate_certs }}"
         status_code: 200

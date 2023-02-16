@@ -1,5 +1,7 @@
 ---
 # tasks file for nutanix-ansible-galaxy-role-lcm
+- include_tasks: setup_api.yml
+
 - name: Test LCM API
   include_tasks: test_api.yml
 
