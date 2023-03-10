@@ -44,5 +44,6 @@
     nutanix_task_retries: 30
     nutanix_task_retry_delay: 30
 
-- set_fact:
+- name: Set nutanix_lcm_update_precheck_task
+  set_fact:
   nutanix_lcm_update_precheck_task: "{{ monitored_task }}"

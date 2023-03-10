@@ -50,5 +50,7 @@
     nutanix_task_retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
     nutanix_task_retry_delay: "{{ nutanix_lcm_delay }}"
     nutanix_task_allow_failure: yes
-- set_fact:
-  nutanix_lcm_update_task: "{{ monitored_task }}"
+
+- name: Set nutanix_lcm_update_task
+  set_fact:
+    nutanix_lcm_update_task: "{{ monitored_task }}"

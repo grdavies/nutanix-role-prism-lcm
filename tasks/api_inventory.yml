@@ -34,5 +34,6 @@
   vars:
     nutanix_task_uuid: "{{ nutanix_lcm_inventory_task_uuid }}"
 
-- set_fact:
-  nutanix_lcm_task_status: "{{ monitored_task }}"
+- name: Set nutanix_lcm_task_status
+  set_fact:
+    nutanix_lcm_task_status: "{{ monitored_task }}"

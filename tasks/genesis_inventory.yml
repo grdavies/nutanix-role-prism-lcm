@@ -19,7 +19,8 @@
   when:
     - nutanix_debug
 
-- set_fact:
+- name: Set nutanix_lcm_initial_inventory_result_value
+  set_fact:
     nutanix_lcm_initial_inventory_result_value: "{{ nutanix_lcm_initial_inventory_result.json | community.general.json_query(query) | to_json | from_json }}"
   vars:
     query: "value"
@@ -42,13 +43,7 @@
   when:
     - nutanix_debug
 
-- name: Debug nutanix_lcm_initial_inventory_task_uuid
-  debug:
-    var: nutanix_lcm_initial_inventory_task_uuid
-  when:
-    - nutanix_debug
-
-- name: Debug nutanix_lcm_initial_inventory_task_uuid
+- name: Store LCM inventory task status
   uri:
     url: "https://{{ nutanix_host }}:{{ nutanix_port }}/PrismGateway/services/rest/v2.0/tasks/{{ nutanix_lcm_initial_inventory_task_uuid }}"
     method: GET
@@ -70,8 +65,9 @@
   vars:
     nutanix_task_uuid: "{{ nutanix_lcm_initial_inventory_task_uuid }}"
 
-- set_fact:
-  nutanix_lcm_initial_inventory_task_status: "{{ monitored_task }}"
+- name: Set nutanix_lcm_initial_inventory_task_status
+  set_fact:
+    nutanix_lcm_initial_inventory_task_status: "{{ monitored_task }}"
 
 - name: Pause for 30 seconds allow new LCM upgrade to become available
   ansible.builtin.pause:
