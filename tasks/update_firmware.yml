@@ -1,7 +1,7 @@
 ---
 - name: Get LCM update recommendations for firmware
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/recommendations"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/recommendations"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json
@@ -22,7 +22,7 @@
 
 - name: Generate firmware update plan
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/plan"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/plan"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json

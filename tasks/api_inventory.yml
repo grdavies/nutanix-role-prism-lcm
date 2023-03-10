@@ -1,7 +1,7 @@
 ---
 - name: Run LCM Inventory
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/operations/$actions/performInventory"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/operations/$actions/performInventory"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json

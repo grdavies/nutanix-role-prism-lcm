@@ -21,7 +21,7 @@
 
 - name: Get LCM software update recommendations
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/recommendations"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/recommendations"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json
@@ -47,7 +47,7 @@
 
 - name: Generate software update plan
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/plan"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/plan"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json

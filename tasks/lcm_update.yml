@@ -1,7 +1,7 @@
 ---
 - name: LCM update
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/operations/$actions/performUpdate"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/operations/$actions/performUpdate"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json
@@ -22,13 +22,13 @@
 
 - name: Debug task status url
   debug:
-    msg: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+    msg: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
   when:
     - nutanix_debug
 
 - name: Checking LCM update task status
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update.json.data.extId }}"
     method: GET
     validate_certs: "{{ validate_certs }}"
     status_code: 200
@@ -49,6 +49,6 @@
     nutanix_task_uuid: "{{ nutanix_lcm_update.json.data.extId }}"
     nutanix_task_retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
     nutanix_task_retry_delay: "{{ nutanix_lcm_delay }}"
-
+    nutanix_task_allow_failure: yes
 - set_fact:
   nutanix_lcm_update_task: "{{ monitored_task }}"

@@ -1,7 +1,7 @@
 ---
 - name: LCM update pre-check
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/operations/$actions/performPrecheck"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/operations/$actions/performPrecheck"
     method: POST
     validate_certs: "{{ validate_certs }}"
     body_format: json
@@ -22,7 +22,7 @@
 
 - name: Checking LCM pre-check task status
   uri:
-    url: "https://{{nutanix_host}}:{{nutanix_port}}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update_precheck.json.data.extId }}"
+    url: "https://{{ nutanix_host }}:{{ nutanix_port }}/api/lcm/v4.0.a1/resources/tasks/{{ nutanix_lcm_update_precheck.json.data.extId }}"
     method: GET
     validate_certs: "{{ validate_certs }}"
     status_code: 200
