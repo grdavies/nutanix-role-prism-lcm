@@ -49,7 +49,7 @@
     nutanix_task_uuid: "{{ nutanix_lcm_update.json.data.extId }}"
     nutanix_task_retries: "{{ nutanix_lcm_retries * nutanix_lcm_update_recommendations.json.data.entityUpdateSpecs | default([]) | length }}"
     nutanix_task_retry_delay: "{{ nutanix_lcm_delay }}"
-    nutanix_task_allow_failure: yes
+    nutanix_task_allow_failure: True
 
 - name: Set nutanix_lcm_update_task
   set_fact:
