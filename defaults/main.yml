@@ -11,5 +11,5 @@ nutanix_lcm_run_software_updates: True
 nutanix_lcm_software_to_update: []
 nutanix_lcm_run_firmware_updates: True
 nutanix_lcm_run_precheck: True
-nutanix_lcm_retries: 5
+nutanix_lcm_retries: 20
 nutanix_lcm_delay: 300
