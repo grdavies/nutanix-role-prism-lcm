@@ -46,4 +46,4 @@
 
 - name: Set nutanix_lcm_update_precheck_task
   set_fact:
-  nutanix_lcm_update_precheck_task: "{{ monitored_task }}"
+    nutanix_lcm_update_precheck_task: "{{ monitored_task }}"
